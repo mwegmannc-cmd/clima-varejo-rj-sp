@@ -1,57 +1,41 @@
 # Clima x Varejo — RJ x SP
 
-Dashboard interativo que compara a previsão do tempo atual em **São Paulo** e
-**Rio de Janeiro** com o mesmo período do ano passado e com a média histórica
-dos últimos 5 anos, para apoiar análises de sazonalidade no varejo de
-vestuário (fluxo de lojas x temperatura/chuva).
+Dashboard interativo que compara o clima de **São Paulo** e **Rio de Janeiro**
+(últimos 14 dias observados + previsão) com o mesmo período do ano passado e com a
+média histórica dos últimos 10 anos, para apoiar análises de sazonalidade e fluxo
+de lojas no varejo de vestuário.
 
 Dados: [Open-Meteo](https://open-meteo.com) — API pública, gratuita, sem
 necessidade de chave/token.
 
 ## Como executar localmente
 
-1. (Recomendado) crie um ambiente virtual:
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate        # Windows
-   # source .venv/bin/activate   # macOS/Linux
-   ```
-
-2. Instale as dependências:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Rode o app:
-
-   ```bash
-   streamlit run app.py
-   ```
-
-4. O navegador abrirá automaticamente em `http://localhost:8501`.
+O navegador abre em `http://localhost:8501`.
 
 ## O que o app mostra
 
-- **Seletor de cidade**: São Paulo (SP) ou Rio de Janeiro (RJ).
-- **Previsão dos próximos 5 dias**: temperatura máx/mín e condição de chuva.
-- **Comparativo YoY**: dados reais de temperatura e precipitação dos mesmos
-  dias, um ano atrás.
-- **Média histórica**: média dos últimos 5 anos para as mesmas datas de
-  calendário, usada como referência de "normalidade" climática.
-- **Painel de Insights de Varejo**: cards com o desvio (°C) vs. ano passado e
-  vs. média histórica, alerta de chuva em fins de semana, e uma leitura
-  textual do possível impacto no varejo de vestuário (ex.: inverno mais
-  quente reduz procura por casacos).
-- **Gráficos**: linha (temperatura, este ano x ano passado x média) e barras
-  (precipitação, este ano x ano passado).
+- **Semáforo de insights** (🟢 favorável / 🔴 atenção) com leitura textual do
+  impacto no varejo, **ajustada à estação** (verão, outono, inverno e primavera).
+- **KPIs**: Tmax e Tmin previstas vs. ano passado e média de 10 anos, **realizado
+  recente** (14 dias), dias de chuva, dias quentes/noites frias e fim de semana.
+- **Alertas**: frente fria (queda brusca da máxima), onda de calor e chuva em fim de
+  semana que foi seco no ano passado (e vice-versa).
+- **Horizonte de previsão** de 5, 7 ou 10 dias e **limiares ajustáveis** na barra lateral.
+- **Gráficos**: temperatura (este ano x ano passado x média), desvio diário
+  (barras vermelho/azul) e chuva.
+- **SP x RJ**: comparação lado a lado (carregada sob demanda).
+- Layout responsivo para celular, **link compartilhável** (`?cidade=Rio+de+Janeiro+(RJ)`)
+  e **download CSV**.
 
 ## Notas técnicas
 
-- Cache de 1h (previsão) e 6h (histórico) via `st.cache_data` para evitar
-  chamadas repetidas à API.
-- Ano passado é obtido via API de arquivo histórico da Open-Meteo
-  (`archive-api.open-meteo.com`), que traz dados reais observados (não
-  previsão).
-- Botão "Atualizar dados" na barra lateral limpa o cache manualmente.
+- Datas calculadas no fuso da cidade (o servidor da nuvem roda em UTC).
+- Histórico baixado com concorrência baixa e cache de 24h; a API pública limita
+  requisições simultâneas, então o app falha de forma graciosa e tenta de novo.
+- As leituras de varejo são hipóteses sazonais baseadas em desvios climáticos,
+  não previsões de vendas.
